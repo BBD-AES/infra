@@ -1,66 +1,79 @@
 services:
+
   gateway:
-    image: ${DOCKERHUB_USERNAME}/bbd-gateway:latest
+    image: inwoohwang/bbd-gateway:latest
     container_name: bbd-gateway
     ports:
       - "8080:8080"
 
+    environment:
+      SPRING_PROFILES_ACTIVE: "local"
+      KEYCLOAK_CLIENT_ID: "security-gateway"
+      KEYCLOAK_CLIENT_SECRET: "xSwvPjZjRb5znP9V60b5mu6FZG9o724x"
+      KEYCLOAK_ISSUER_URI: "https://bbd-keycloak.inwoohub.com/auth/realms/bbd"
+      USER_SERVICE_URI: "http://user:8080"
+      ITEM_SERVICE_URI: "http://item:8080"
+      INVENTORY_SERVICE_URI: "http://inventory:8080"
+      PROCUREMENT_SERVICE_URI: "http://procurement:8080"
+      SALES_SERVICE_URI: "http://sales:8080"
+
   user:
-    image: ${DOCKERHUB_USERNAME}/bbd-user:latest
+    image: inwoohwang/bbd-user:latest
     container_name: bbd-user
     ports:
       - "8081:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: public
-      DB_ENDPOINT: ${USER_DB_ENDPOINT}
-      DB_NAME: ${USER_DB_USERNAME}
-      DB_PASSWORD: ${USER_DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: local
+      DB_ENDPOINT: jdbc:postgresql://user.cpuy4wo2mh3s.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
+      DB_NAME: user
+      DB_PASSWORD: user!!0317
     restart: always
 
   item:
-    image: ${DOCKERHUB_USERNAME}/bbd-item:latest
+    image: inwoohwang/bbd-item:latest
     container_name: bbd-item
     ports:
       - "8082:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: public
-      DB_ENDPOINT: ${ITEM_DB_ENDPOINT}
-      DB_NAME: ${ITEM_DB_USERNAME}
-      DB_PASSWORD: ${ITEM_DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: local
+      DB_ENDPOINT: jdbc:postgresql://item.cxasiege69ap.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
+      DB_NAME: postgres
+      DB_PASSWORD: item!!0217
     restart: always
 
   inventory:
-    image: ${DOCKERHUB_USERNAME}/bbd-inventory:latest
+    image: inwoohwang/bbd-inventory:latest
     container_name: bbd-inventory
     ports:
       - "8083:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: public
-      DB_ENDPOINT: ${INVENTORY_DB_ENDPOINT}
-      DB_NAME: ${INVENTORY_DB_USERNAME}
-      DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: local
+      DB_ENDPOINT: jdbc:postgresql://inventory.cjeq4yoeebzg.ap-northeast-2.rds.amazonaws.com/postgres?currentSchema=bbd
+      DB_NAME: postgres
+      DB_PASSWORD: inventory015397!!
+      ITEMS_BASE_URL: http://localhost:8082/item
     restart: always
 
   procurement:
-    image: ${DOCKERHUB_USERNAME}/bbd-procurement:latest
+    image: inwoohwang/bbd-procurement:latest
     container_name: bbd-procurement
     ports:
       - "8084:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: public
-      DB_ENDPOINT: ${PROCUREMENT_DB_ENDPOINT}
-      DB_NAME: ${PROCUREMENT_DB_USERNAME}
-      DB_PASSWORD: ${PROCUREMENT_DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: local
+      DB_ENDPOINT: jdbc:postgresql://procurement.c7o4sae2oz9x.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
+      DB_NAME: postgres
+      DB_PASSWORD: dayoung0311
     restart: always
 
   sales:
-    image: ${DOCKERHUB_USERNAME}/bbd-sales:latest
+    image: inwoohwang/bbd-sales:latest
     container_name: bbd-sales
     ports:
       - "8085:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: public
-      DB_ENDPOINT: ${SALES_DB_ENDPOINT}
-      DB_NAME: ${SALES_DB_USERNAME}
-      DB_PASSWORD: ${SALES_DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: local
+      DB_ENDPOINT: jdbc:postgresql://sales.cpgkky002oe4.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
+      DB_NAME: postgres
+      DB_PASSWORD: sales!!0607
     restart: always
