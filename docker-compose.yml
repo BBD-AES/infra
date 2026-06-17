@@ -10,8 +10,9 @@ services:
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
-      REDIS_HOST: ${REDIS_HOST}
-      REDIS_PORT: ${REDIS_PORT}
+      REDIS_URI: ${LOCAL_REDIS_HOST}
+      REDIS_HOST: ${LOCAL_REDIS_HOST}
+      REDIS_PORT: ${LOCAL_REDIS_PORT}
       REDIS_SSL_ENABLED: ${REDIS_SSL_ENABLED}
       SECURITY_LOG_LEVEL: ${SECURITY_LOG_LEVEL}
       GATEWAY_LOG_LEVEL: ${GATEWAY_LOG_LEVEL}
@@ -34,6 +35,7 @@ services:
       DB_NAME: ${USER_DB_NAME}
       DB_PASSWORD: ${USER_DB_PASSWORD}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      REDIS_URI: ${LOCAL_REDIS_HOST}
       REDIS_HOST: ${LOCAL_REDIS_HOST}
       REDIS_PORT: ${LOCAL_REDIS_PORT}
       REDIS_SSL_ENABLED: false
@@ -92,6 +94,9 @@ services:
       INVENTORY_SERVICE_BASE_URL: http://bbd-inventory:8080/inventory
       PROCUREMENT_SERVICE_BASE_URL: http://bbd-procurement:8080/procurement
       SALES_SERVICE_BASE_URL: http://bbd-sales:8080/sales
+      REDIS_URI: ${LOCAL_REDIS_HOST}
+      REDIS_HOST: ${LOCAL_REDIS_HOST}
+      REDIS_PORT: ${LOCAL_REDIS_PORT}
     depends_on:
       - item
     restart: always
@@ -114,6 +119,9 @@ services:
       INVENTORY_SERVICE_BASE_URL: http://bbd-inventory:8080/inventory
       PROCUREMENT_SERVICE_BASE_URL: http://bbd-procurement:8080/procurement
       SALES_SERVICE_BASE_URL: http://bbd-sales:8080/sales      
+      REDIS_URI: ${LOCAL_REDIS_HOST}
+      REDIS_HOST: ${LOCAL_REDIS_HOST}
+      REDIS_PORT: ${LOCAL_REDIS_PORT}      
     depends_on:
       - item
       - sales
@@ -141,6 +149,10 @@ services:
       INVENTORY_SERVICE_BASE_URL: http://bbd-inventory:8080/inventory
       PROCUREMENT_SERVICE_BASE_URL: http://bbd-procurement:8080/procurement
       SALES_SERVICE_BASE_URL: http://bbd-sales:8080/sales
+      REDIS_URI: ${LOCAL_REDIS_HOST}
+      REDIS_HOST: ${LOCAL_REDIS_HOST}
+      REDIS_PORT: ${LOCAL_REDIS_PORT}
+
     depends_on:
       - inventory
       - item
