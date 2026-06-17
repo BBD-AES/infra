@@ -56,14 +56,14 @@ services:
       DB_NAME: ${ITEM_DB_NAME}
       DB_PASSWORD: ${ITEM_DB_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
-      ELASTICSEARCH_URI: http://bbd-elasticsearch:9200
+      ELASTICSEARCH_URI: http://opensearch:9200
       REDIS_URI: ${LOCAL_REDIS_HOST}
       REDIS_HOST: ${LOCAL_REDIS_HOST}
       REDIS_PORT: ${LOCAL_REDIS_PORT}
       REDIS_SSL_ENABLED: false
     depends_on:
       - redis
-      - elasticsearch
+      - opensearch
     restart: always
 
   inventory:
@@ -116,7 +116,6 @@ services:
       DB_ENDPOINT: ${SALES_DB_ENDPOINT}
       DB_NAME: ${SALES_DB_NAME}
       DB_PASSWORD: ${SALES_DB_PASSWORD}
-      DB_SCHEMA: ${SALES_DB_SCHEMA}
       SQL_INIT_MODE: ${SALES_SQL_INIT_MODE}
       DEFER_DATASOURCE_INITIALIZATION: ${SALES_DEFER_DATASOURCE_INITIALIZATION}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
@@ -129,29 +128,31 @@ services:
       - item
     restart: always
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
-    container_name: bbd-elasticsearch
+  opensearch:
+    image: opensearchproject/opensearch:2.17.1
+    container_name: bbd-opensearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+      - plugins.security.disabled=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
-      - "${ELASTICSEARCH_PORT}:9200"
-      - "${ELASTICSEARCH_TRANSPORT_PORT}:9300"
+      - "9200:9200"
+      - "9600:9600"
+
     volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
+      - opensearch-data:/usr/share/opensearch/data
     restart: unless-stopped
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION}
-    container_name: bbd-kibana
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.17.1
+    container_name: bbd-opensearch-dashboards
     environment:
-      - ELASTICSEARCH_HOSTS=http://bbd-elasticsearch:9200
+      - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true
     ports:
-      - "${KIBANA_PORT}:5601"
+      - "${KIBANA_PORT:-5601}:5601"
     depends_on:
-      - elasticsearch
+      - opensearch
     restart: unless-stopped
 
   redis:
@@ -163,4 +164,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  elasticsearch-data:
+  opensearch-data:
