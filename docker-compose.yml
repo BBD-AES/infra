@@ -61,6 +61,7 @@ services:
       REDIS_HOST: ${LOCAL_REDIS_HOST}
       REDIS_PORT: ${LOCAL_REDIS_PORT}
       REDIS_SSL_ENABLED: false
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
     depends_on:
       - redis
       - opensearch
@@ -82,6 +83,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
       KAFKA_CONSUMER_GROUP_ID: ${INVENTORY_KAFKA_CONSUMER_GROUP_ID}
       KAFKA_OFFSET_RESET: ${INVENTORY_KAFKA_OFFSET_RESET}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
     depends_on:
       - item
     restart: always
@@ -100,6 +102,7 @@ services:
       ITEM_SERVICE_BASE_URL: http://bbd-item:8080/item
       SALES_SERVICE_BASE_URL: http://bbd-sales:8080/sales
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0 -XX:InitialRAMPercentage=30.0"
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
     depends_on:
       - item
       - sales
@@ -123,6 +126,7 @@ services:
       KAFKA_OFFSET_RESET: ${SALES_KAFKA_OFFSET_RESET}
       INVENTORY_BASE_URL: http://bbd-inventory:8080/inventory
       ITEM_BASE_URL: http://bbd-item:8080/item
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
     depends_on:
       - inventory
       - item
