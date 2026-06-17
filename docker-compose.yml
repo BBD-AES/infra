@@ -1,79 +1,166 @@
 services:
-
   gateway:
-    image: inwoohwang/bbd-gateway:latest
+    image: ${DOCKERHUB_USERNAME}/bbd-gateway:latest
     container_name: bbd-gateway
     ports:
-      - "8080:8080"
-
+      - "${GATEWAY_PORT}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: "local"
-      KEYCLOAK_CLIENT_ID: "security-gateway"
-      KEYCLOAK_CLIENT_SECRET: "xSwvPjZjRb5znP9V60b5mu6FZG9o724x"
-      KEYCLOAK_ISSUER_URI: "https://bbd-keycloak.inwoohub.com/auth/realms/bbd"
-      USER_SERVICE_URI: "http://user:8080"
-      ITEM_SERVICE_URI: "http://item:8080"
-      INVENTORY_SERVICE_URI: "http://inventory:8080"
-      PROCUREMENT_SERVICE_URI: "http://procurement:8080"
-      SALES_SERVICE_URI: "http://sales:8080"
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      USER_SERVICE_URI: http://bbd-user:8080
+      ITEM_SERVICE_URI: http://bbd-item:8080
+      INVENTORY_SERVICE_URI: http://bbd-inventory:8080
+      PROCUREMENT_SERVICE_URI: http://bbd-procurement:8080
+      SALES_SERVICE_URI: http://bbd-sales:8080
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_SSL_ENABLED: ${REDIS_SSL_ENABLED}
+      SECURITY_LOG_LEVEL: ${SECURITY_LOG_LEVEL}
+      GATEWAY_LOG_LEVEL: ${GATEWAY_LOG_LEVEL}
+    restart: always
 
   user:
-    image: inwoohwang/bbd-user:latest
+    image: ${DOCKERHUB_USERNAME}/bbd-user:latest
     container_name: bbd-user
     ports:
-      - "8081:8080"
+      - "${USER_PORT}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
-      DB_ENDPOINT: jdbc:postgresql://user.cpuy4wo2mh3s.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
-      DB_NAME: user
-      DB_PASSWORD: user!!0317
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_ENDPOINT: ${USER_DB_ENDPOINT}
+      DB_NAME: ${USER_DB_NAME}
+      DB_PASSWORD: ${USER_DB_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI}
+      REDIS_HOST: ${LOCAL_REDIS_HOST}
+      REDIS_PORT: ${LOCAL_REDIS_PORT}
+      REDIS_SSL_ENABLED: false
+      USER_SNAPSHOT_CACHE_TTL_SECONDS: ${USER_SNAPSHOT_CACHE_TTL_SECONDS}
+      SCIM_ENABLED: ${SCIM_ENABLED}
+      SCIM_CLIENT_COMMON_NAME: ${SCIM_CLIENT_COMMON_NAME}
+    depends_on:
+      - redis
     restart: always
 
   item:
-    image: inwoohwang/bbd-item:latest
+    image: ${DOCKERHUB_USERNAME}/bbd-item:latest
     container_name: bbd-item
     ports:
-      - "8082:8080"
+      - "${ITEM_PORT}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
-      DB_ENDPOINT: jdbc:postgresql://item.cxasiege69ap.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
-      DB_NAME: postgres
-      DB_PASSWORD: item!!0217
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_ENDPOINT: ${ITEM_DB_ENDPOINT}
+      DB_NAME: ${ITEM_DB_NAME}
+      DB_PASSWORD: ${ITEM_DB_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      ELASTICSEARCH_URI: http://bbd-elasticsearch:9200
+      REDIS_URI: ${LOCAL_REDIS_HOST}
+      REDIS_HOST: ${LOCAL_REDIS_HOST}
+      REDIS_PORT: ${LOCAL_REDIS_PORT}
+      REDIS_SSL_ENABLED: false
+    depends_on:
+      - redis
+      - elasticsearch
     restart: always
 
   inventory:
-    image: inwoohwang/bbd-inventory:latest
+    image: ${DOCKERHUB_USERNAME}/bbd-inventory:latest
     container_name: bbd-inventory
     ports:
-      - "8083:8080"
+      - "${INVENTORY_PORT}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
-      DB_ENDPOINT: jdbc:postgresql://inventory.cjeq4yoeebzg.ap-northeast-2.rds.amazonaws.com/postgres?currentSchema=bbd
-      DB_NAME: postgres
-      DB_PASSWORD: inventory015397!!
-      ITEMS_BASE_URL: http://localhost:8082/item
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_ENDPOINT: ${INVENTORY_DB_ENDPOINT}
+      DB_NAME: ${INVENTORY_DB_NAME}
+      DB_PASSWORD: ${INVENTORY_DB_PASSWORD}
+      ITEM_SERVICE_BASE_URL: http://bbd-item:8080/item
+      ITEMS_BASE_URL: http://bbd-item:8080/item
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      KAFKA_CONSUMER_GROUP_ID: ${INVENTORY_KAFKA_CONSUMER_GROUP_ID}
+      KAFKA_OFFSET_RESET: ${INVENTORY_KAFKA_OFFSET_RESET}
+    depends_on:
+      - item
     restart: always
 
   procurement:
-    image: inwoohwang/bbd-procurement:latest
+    image: ${DOCKERHUB_USERNAME}/bbd-procurement:latest
     container_name: bbd-procurement
     ports:
-      - "8084:8080"
+      - "${PROCUREMENT_PORT}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
-      DB_ENDPOINT: jdbc:postgresql://procurement.c7o4sae2oz9x.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
-      DB_NAME: postgres
-      DB_PASSWORD: dayoung0311
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_ENDPOINT: ${PROCUREMENT_DB_ENDPOINT}
+      DB_NAME: ${PROCUREMENT_DB_NAME}
+      DB_PASSWORD: ${PROCUREMENT_DB_PASSWORD}
+      ITEM_SERVICE_BASE_URL: http://bbd-item:8080/item
+      SALES_SERVICE_BASE_URL: http://bbd-sales:8080/sales
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0 -XX:InitialRAMPercentage=30.0"
+    depends_on:
+      - item
+      - sales
     restart: always
 
   sales:
-    image: inwoohwang/bbd-sales:latest
+    image: ${DOCKERHUB_USERNAME}/bbd-sales:latest
     container_name: bbd-sales
     ports:
-      - "8085:8080"
+      - "${SALES_PORT}:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: local
-      DB_ENDPOINT: jdbc:postgresql://sales.cpgkky002oe4.ap-northeast-2.rds.amazonaws.com:5432/postgres?currentSchema=bbd
-      DB_NAME: postgres
-      DB_PASSWORD: sales!!0607
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      DB_ENDPOINT: ${SALES_DB_ENDPOINT}
+      DB_NAME: ${SALES_DB_NAME}
+      DB_PASSWORD: ${SALES_DB_PASSWORD}
+      DB_SCHEMA: ${SALES_DB_SCHEMA}
+      SQL_INIT_MODE: ${SALES_SQL_INIT_MODE}
+      DEFER_DATASOURCE_INITIALIZATION: ${SALES_DEFER_DATASOURCE_INITIALIZATION}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      KAFKA_CONSUMER_GROUP_ID: ${SALES_KAFKA_CONSUMER_GROUP_ID}
+      KAFKA_OFFSET_RESET: ${SALES_KAFKA_OFFSET_RESET}
+      INVENTORY_BASE_URL: http://bbd-inventory:8080/inventory
+      ITEM_BASE_URL: http://bbd-item:8080/item
+    depends_on:
+      - inventory
+      - item
     restart: always
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: bbd-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=${ES_JAVA_OPTS}
+    ports:
+      - "${ELASTICSEARCH_PORT}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT}:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION}
+    container_name: bbd-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://bbd-elasticsearch:9200
+    ports:
+      - "${KIBANA_PORT}:5601"
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  redis:
+    image: redis:${REDIS_IMAGE_VERSION}
+    container_name: bbd-redis
+    ports:
+      - "${LOCAL_REDIS_PORT}:6379"
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+volumes:
+  elasticsearch-data:
