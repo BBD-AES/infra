@@ -28,6 +28,7 @@ jobs:
           script: |
             cd ~/project/infra
             git pull origin main
-            docker compose pull
-            docker compose up -d --force-recreate
+            APP_SERVICES="gateway user item inventory procurement sales"
+            docker compose pull $APP_SERVICES
+            docker compose up -d --force-recreate --no-deps $APP_SERVICES
             docker image prune -f
