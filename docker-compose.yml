@@ -158,6 +158,21 @@ services:
       - item
     restart: always
 
+  # 프런트 ERP 콘솔 (React/Vite 빌드 → nginx 정적 서빙). frontend-react 레포에서 빌드한 이미지.
+  # 정적 SPA 서빙 + /item /inventory /sales /procurement /user /api /oauth2 /login/oauth2 /logout 를
+  # 같은 출처로 게이트웨이(bbd-gateway:8080)에 프록시 → CORS 불필요, Keycloak 세션 그대로.
+  console-react:
+    image: ${DOCKERHUB_USERNAME}/bbd-console-react:latest
+    container_name: bbd-console-react
+    ports:
+      - "${CONSOLE_REACT_PORT:-5173}:5173"   # 게이트웨이 하드코딩 리다이렉트(localhost:5173)와 일치
+    environment:
+      GATEWAY_UPSTREAM: bbd-gateway:8080
+      LISTEN_PORT: 5173
+    depends_on:
+      - gateway
+    restart: always
+
   opensearch:
     image: opensearchproject/opensearch:2.17.1
     container_name: bbd-opensearch
