@@ -158,6 +158,22 @@ services:
       - item
     restart: always
 
+  # 프런트 ERP 콘솔(정적 nginx). index.html+support.js 정적 서빙 +
+  # /item /inventory /sales /procurement /user /api /oauth2 /login/oauth2 /logout 를
+  # 같은 출처로 게이트웨이(bbd-gateway:8080)에 프록시 → CORS 불필요, Keycloak 세션 그대로.
+  # 이미지는 frontend 레포 CI 가 ${DOCKERHUB_USERNAME}/bbd-console:latest 로 발행.
+  console:
+    image: ${DOCKERHUB_USERNAME}/bbd-console:latest
+    container_name: bbd-console
+    ports:
+      - "${CONSOLE_PORT:-5173}:5173"   # 게이트웨이 하드코딩 리다이렉트(localhost:5173)와 일치
+    environment:
+      GATEWAY_UPSTREAM: bbd-gateway:8080
+      LISTEN_PORT: 5173
+    depends_on:
+      - gateway
+    restart: always
+
   opensearch:
     image: opensearchproject/opensearch:2.17.1
     container_name: bbd-opensearch
