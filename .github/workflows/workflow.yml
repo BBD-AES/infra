@@ -21,14 +21,19 @@ jobs:
 
       - name: Deploy to Ubuntu server
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          # repository_dispatch(deploy-service) 면 프론트가 보낸 커밋 SHA 태그, 그 외(push/수동)는 latest.
+          # 셸 문자열 보간이 아니라 envs: 로 원격에 안전하게 주입(페이로드 인젝션 방지).
+          CONSOLE_TAG: ${{ github.event.client_payload.tag || 'latest' }}
         with:
           host: ${{ secrets.SERVER_TAILSCALE_IP }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: CONSOLE_TAG
           script: |
             cd ~/project/infra
             git pull origin main
-            APP_SERVICES="gateway user item inventory procurement sales"
+            APP_SERVICES="gateway user item inventory procurement sales console"
             docker compose pull $APP_SERVICES
             docker compose up -d --force-recreate --no-deps $APP_SERVICES
             docker image prune -f

@@ -23,6 +23,21 @@ services:
       SALES_SERVICE_BASE_URL: http://bbd-sales:8080/sales
     restart: always
 
+  # 콘솔(React/Vite) — 빌드된 SPA 를 nginx 로 서빙 + 동일출처로 게이트웨이 프록시.
+  # 브라우저는 이 컨테이너(5173) 한 출처로만 들어와 세션쿠키·OAuth2 왕복이 끝까지 동작.
+  # 이미지는 BBD-AES/frontend-react CI 가 Docker Hub 로 푸시. CONSOLE_TAG=커밋SHA(dispatch), 없으면 latest.
+  console:
+    image: ${DOCKERHUB_USERNAME}/bbd-console-react:${CONSOLE_TAG:-latest}
+    container_name: bbd-console-react
+    ports:
+      - "${CONSOLE_PORT:-5173}:5173"
+    environment:
+      GATEWAY_UPSTREAM: bbd-gateway:8080
+      LISTEN_PORT: 5173
+    depends_on:
+      - gateway
+    restart: always
+
   user:
     image: ${DOCKERHUB_USERNAME}/bbd-user:latest
     container_name: bbd-user
